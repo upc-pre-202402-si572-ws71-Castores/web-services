@@ -93,5 +93,4 @@ public class WebSecurityConfiguration {
         http.addFilterBefore(authorizationRequestFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 }

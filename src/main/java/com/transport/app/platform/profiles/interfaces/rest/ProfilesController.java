@@ -2,12 +2,15 @@ package com.transport.app.platform.profiles.interfaces.rest;
 
 import com.transport.app.platform.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.transport.app.platform.profiles.domain.model.queries.GetProfileByIdQuery;
+import com.transport.app.platform.profiles.domain.model.queries.GetProfileByUserIdQuery;
 import com.transport.app.platform.profiles.domain.services.ProfileCommandService;
 import com.transport.app.platform.profiles.domain.services.ProfileQueryService;
 import com.transport.app.platform.profiles.interfaces.rest.resources.CreateProfileResource;
 import com.transport.app.platform.profiles.interfaces.rest.resources.ProfileResource;
+import com.transport.app.platform.profiles.interfaces.rest.resources.UpdateProfileResource;
 import com.transport.app.platform.profiles.interfaces.rest.transform.CreateProfileCommandFromResourceAssembler;
 import com.transport.app.platform.profiles.interfaces.rest.transform.ProfileResourceFromEntityAssembler;
+import com.transport.app.platform.profiles.interfaces.rest.transform.UpdateProfileCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,5 +57,23 @@ public class ProfilesController {
                 .map(ProfileResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(profileResources);
+    }
+    @PutMapping("/{profileId}")
+    public ResponseEntity<ProfileResource> updateProfile(@PathVariable Long profileId, @RequestBody UpdateProfileResource updateProfileResource) {
+        var updateCourseCommand = UpdateProfileCommandFromResourceAssembler.toCommandFromResource(profileId, updateProfileResource);
+        var updatedProfile = profileCommandService.handle(updateCourseCommand);
+        if (updatedProfile.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(updatedProfile.get());
+        return ResponseEntity.ok(profileResource);
+    }
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ProfileResource> getProfileByUserId(@PathVariable Long userId) {
+        var getProfileByUserIdQuery = new GetProfileByUserIdQuery(userId);
+        var profile = profileQueryService.handle(getProfileByUserIdQuery);
+        if (profile.isEmpty()) return ResponseEntity.notFound().build();
+        var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
+        return ResponseEntity.ok(profileResource);
     }
 }

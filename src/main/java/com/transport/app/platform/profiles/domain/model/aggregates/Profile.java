@@ -15,6 +15,8 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     @Embedded
     private PersonName name;
 
+    private Long userId;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "address", column = @Column(name = "email_address"))})
@@ -44,6 +46,7 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
         this.dni = command.dni();
         this.address = command.address();
         this.phone = command.phone();
+        this.userId = command.id();
     }
 
     public void updateName(String firstName, String lastName) {
@@ -64,4 +67,33 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
 
     public String getCity() { return address; }
 
+    public Profile updateInformation(String firstName, String lastName, String email, String address, Date birthday, long dni, String phone) {
+        this.name = new PersonName(firstName,lastName);
+        this.email = new EmailAddress(email);
+        this.birthday = birthday;
+        this.dni = dni;
+        this.address = address;
+        this.phone = phone;
+        return this;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getDni() {
+        return dni;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
 }
